@@ -25,6 +25,25 @@ func NewService(repo Repository) *UseCase {
 	}
 }
 
+func (s *UseCase) GetUserByID(ctx context.Context, ID uuid.UUID) (*model.User, error) {
+	user, err := s.repo.GetUserByID(ctx, ID)
+	if err != nil {
+		// TODO log
+		return nil, fmt.Errorf("failed to get user by id: %w", err)
+	}
+	return user, nil
+}
+
+func (s *UseCase) GetAllUsersViews(ctx context.Context) ([]*model.UserView, error) {
+	users, err := s.repo.GetAllUsersViews(ctx)
+	if err != nil {
+		// TODO log
+		return nil, fmt.Errorf("failed to get all users views: %w", err)
+	}
+
+	return users, nil
+}
+
 func (s *UseCase) CreateUser(ctx context.Context, opts *model.UserCreateOpts) error {
 	ID := uuid.New()
 
@@ -43,10 +62,27 @@ func (s *UseCase) CreateUser(ctx context.Context, opts *model.UserCreateOpts) er
 
 	err := s.repo.CreateUser(ctx, newUser)
 	if err != nil {
+		// TODO log
 		return fmt.Errorf("failed to create user: %w", err)
 	}
 
 	return nil
-
 }
 
+func (s *UseCase) UpdateUser(ctx context.Context, opts *model.UserUpdateOpts) error {
+	if err := s.repo.UpdateUser(ctx, opts); err != nil {
+		// TODO log
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return nil
+}
+
+func (s *UseCase) DeleteUserByID(ctx context.Context, ID uuid.UUID) error {
+	if err := s.repo.DeleteUserByID(ctx, ID); err != nil {
+		// TODO log
+		return fmt.Errorf("failed to delete user by id: %w", err)
+	}
+
+	return nil
+}
