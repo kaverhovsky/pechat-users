@@ -15,6 +15,15 @@ type User struct {
 	// phone number (?)
 }
 
+type UserCreateOpts struct {
+	Nickname  string
+	Password  string
+	Firstname string
+	Lastname  string
+	Email     string
+	Bio       string
+}
+
 type UserView struct {
 	ID        uuid.UUID
 	NickName  string
