@@ -14,3 +14,17 @@ type User struct {
 	// role (?)
 	// phone number (?)
 }
+
+type UserView struct {
+	ID        uuid.UUID
+	NickName  string
+	Firstname string
+	Lastname  string
+}
+
+type UserUpdateOpts struct {
+	Nickname  *string
+	Firstname *string
+	Lastname  *string
+	Bio       *string
+}
