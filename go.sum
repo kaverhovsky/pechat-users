@@ -1,2 +1,4 @@
+github.com/go-jet/jet/v2 v2.13.0 h1:DcD2IJRGos+4X40IQRV6S6q9onoOfZY/GPdvU6ImZcQ=
+github.com/go-jet/jet/v2 v2.13.0/go.mod h1:YhT75U1FoYAxFOObbQliHmXVYQeffkBKWT7ZilZ3zPc=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
