@@ -13,7 +13,7 @@ type Repository interface {
 	GetUserByID(ctx context.Context, ID uuid.UUID) (*model.User, error)
 	GetAllUsersViews(ctx context.Context) ([]*model.UserView, error)
 	CreateUser(ctx context.Context, user *model.User) error
-	UpdateUser(ctx context.Context, opts *model.UserUpdateOpts) error
+	UpdateUser(ctx context.Context, ID uuid.UUID, opts *model.UserUpdateOpts) error
 	DeleteUserByID(ctx context.Context, ID uuid.UUID) error
 }
 
@@ -82,7 +82,7 @@ func (s *UseCase) CreateUser(ctx context.Context, opts *model.UserCreateOpts) er
 }
 
 func (s *UseCase) UpdateUser(ctx context.Context, ID uuid.UUID, opts *model.UserUpdateOpts) error {
-	if err := s.repo.UpdateUser(ctx, opts); err != nil {
+	if err := s.repo.UpdateUser(ctx, ID, opts); err != nil {
 		logger.Error(ctx, "failed to update user by id",
 			zap.NamedError("err", err),
 			zap.String("userId", ID.String()))
