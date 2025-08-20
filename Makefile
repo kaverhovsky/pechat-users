@@ -1,5 +1,6 @@
 BUILDDIR=${CURDIR}/build
 BINDIR=${CURDIR}/bin
+MIGRATIONDIR=${CURDIR}/migrations
 BINNAME=users
 APP_ENTRYPOINT=./cmd/users/users.go
 JET_GENERATE_PATH=./internal/pkg/jet
@@ -24,8 +25,15 @@ start:
 generate-all: generate-jet
 
 generate-jet:
-	jet -dsn=postgres://postgres:password@localhost:5432/pechat-users?sslmode=disable -schema=pechat-users -path=${JET_GENERATE_PATH}
+	${BINDIR}/jet \
+	-dsn=postgres://postgres:password@localhost:5432/pechat_users?sslmode=disable \
+	-path=${JET_GENERATE_PATH} \
+	-ignore-tables goose_db_version, goose_db_version_id_seq
 
+
+# postgres migrations
+run-goose-migrations:
+	${BINDIR}/goose postgres "postgres://postgres:password@localhost:5432/pechat_users?sslmode=disable" -dir ${MIGRATIONDIR} up
 
 # tools installation targets
 install-all: bindir install-jet-generator install-goose
