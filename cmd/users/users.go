@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/kaverhovsky/pechat-lib/logger"
-	"log"
+	"go.uber.org/zap"
 	"pechat-users/internal/domain/repository"
 	"pechat-users/internal/domain/usecase"
 	"pechat-users/internal/pkg/config"
@@ -19,13 +19,11 @@ func main() {
 
 	logger.SetupLogger(c.Logger.Mode, c.Logger.Level)
 
-	pgrepo := repository.NewPostgresRepository()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-
-	if err := pgrepo.Init(ctx, c.Postgres.DSN); err != nil {
-		// TODO log error and exit gracefully
-		log.Fatal("err")
+	pgrepo, pgErr := repository.NewPostgresRepository(ctx, c.Postgres.DSN)
+	if pgErr != nil {
+		logger.Logger().Error("failed to create postgres repository", zap.NamedError("err", pgErr))
 	}
 
 	_ = usecase.NewUseCase(pgrepo)

@@ -15,11 +15,7 @@ type PostgresRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewPostgresRepository() *PostgresRepository {
-	return &PostgresRepository{}
-}
-
-func (p *PostgresRepository) Init(ctx context.Context, dsn string) error {
+func NewPostgresRepository(ctx context.Context, dsn string) (*PostgresRepository, error) {
 	// TODO указать другие параметры (размер пула и пр.)
 	c, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
@@ -30,9 +26,12 @@ func (p *PostgresRepository) Init(ctx context.Context, dsn string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create pgx pool: %w", err)
 	}
-	p.pool = pool
 
-	return nil
+	return &PostgresRepository{pool: pool}
+}
+
+func NewPostgresRepositoryWithPool(pool *pgxpool.Pool) *PostgresRepository {
+	return &PostgresRepository{pool: pool}
 }
 
 func (p *PostgresRepository) GetUserByID(ctx context.Context, ID uuid.UUID) (*model.User, error) {
