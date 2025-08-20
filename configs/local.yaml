@@ -1,0 +1,5 @@
+postgres:
+  dsn: "postgres://postgres:password@localhost:5432/pechat_users?sslmode=disable"
+logger:
+  level: "debug"
+  mode: "development"
