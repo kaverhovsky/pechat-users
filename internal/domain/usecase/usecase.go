@@ -54,10 +54,10 @@ func (s *UseCase) CreateUser(ctx context.Context, opts *model.UserCreateOpts) er
 		ID:           ID,
 		Nickname:     opts.Nickname,
 		PasswordHash: opts.Password, // TODO put hash
-		Firstname:    opts.Firstname,
-		Lastname:     opts.Lastname,
+		Firstname:    &opts.Firstname,
+		Lastname:     &opts.Lastname,
 		Email:        opts.Email,
-		Bio:          opts.Bio,
+		Bio:          &opts.Bio,
 	}
 
 	err := s.repo.CreateUser(ctx, newUser)
