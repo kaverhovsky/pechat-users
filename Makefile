@@ -32,8 +32,11 @@ generate-jet:
 
 
 # postgres migrations
-run-goose-migrations:
+up-goose-migrations:
 	${BINDIR}/goose postgres "postgres://postgres:password@localhost:5432/pechat_users?sslmode=disable" -dir ${MIGRATIONDIR} up
+
+down-goose-migrations:
+	${BINDIR}/goose postgres "postgres://postgres:password@localhost:5432/pechat_users?sslmode=disable" -dir ${MIGRATIONDIR} down
 
 # tools installation targets
 install-all: bindir install-jet-generator install-goose

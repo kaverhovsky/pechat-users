@@ -3,11 +3,11 @@
 
 create table users (
     id uuid primary key,
-    nickname text,
-    password_hash text,
+    nickname text not null,
+    password_hash text not null,
     firstname text,
     lastname text,
-    email text,
+    email text not null,
     bio text
 )
 

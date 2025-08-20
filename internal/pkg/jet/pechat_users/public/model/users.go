@@ -13,10 +13,10 @@ import (
 
 type Users struct {
 	ID           uuid.UUID `sql:"primary_key"`
-	Nickname     *string
-	PasswordHash *string
+	Nickname     string
+	PasswordHash string
 	Firstname    *string
 	Lastname     *string
-	Email        *string
+	Email        string
 	Bio          *string
 }
