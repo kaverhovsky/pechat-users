@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/kaverhovsky/chat/internal/domain/model"
+	"pechat-users/internal/domain/model"
 )
 
 type Repository interface {

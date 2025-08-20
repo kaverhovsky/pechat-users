@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/kaverhovsky/chat/internal/domain/repository"
-	"github.com/kaverhovsky/chat/internal/domain/usecase"
 	"log"
+	"pechat-users/internal/domain/repository"
+	"pechat-users/internal/domain/usecase"
 	"time"
 )
 

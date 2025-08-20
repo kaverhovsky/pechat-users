@@ -6,10 +6,10 @@ type User struct {
 	ID           uuid.UUID
 	Nickname     string
 	PasswordHash string
-	Firstname    string
-	Lastname     string
+	Firstname    *string
+	Lastname     *string
 	Email        string
-	Bio          string
+	Bio          *string
 	// avatar id
 	// role (?)
 	// phone number (?)
@@ -27,8 +27,8 @@ type UserCreateOpts struct {
 type UserView struct {
 	ID        uuid.UUID
 	NickName  string
-	Firstname string
-	Lastname  string
+	Firstname *string
+	Lastname  *string
 }
 
 type UserUpdateOpts struct {

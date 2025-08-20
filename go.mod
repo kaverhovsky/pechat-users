@@ -1,4 +1,4 @@
-module github.com/kaverhovsky/chat
+module pechat-users
 
 go 1.23.0
 
