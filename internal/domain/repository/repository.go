@@ -36,12 +36,24 @@ func NewPostgresRepositoryWithPool(pool *pgxpool.Pool) *PostgresRepository {
 
 func (p *PostgresRepository) GetUserByID(ctx context.Context, ID uuid.UUID) (*model.User, error) {
 	stmt := j.SELECT(t.Users.AllColumns).FROM(t.Users).WHERE(t.Users.ID.EQ(j.UUID(ID)))
+	//stmt := j.SELECT(t.Users.AllColumns).FROM(t.Users).WHERE(t.Users.ID.EQ(j.String(ID.String())))
+	//stmt := j.SELECT(
+	//	t.Users.ID,
+	//	t.Users.Nickname,
+	//	t.Users.PasswordHash,
+	//	t.Users.Email,
+	//	t.Users.Firstname,
+	//	t.Users.Lastname,
+	//	t.Users.Bio,
+	//).FROM(t.Users).WHERE(t.Users.ID.EQ(j.UUID(ID)))
 	q, args := stmt.Sql()
+	fmt.Println(q)
+	fmt.Println(args)
 
-	row := p.pool.QueryRow(ctx, q, args)
+	row := p.pool.QueryRow(ctx, q, args...)
 
 	var u j_model.Users
-	if err := row.Scan(&u.ID, &u.Nickname, &u.PasswordHash, u.Firstname, u.Lastname, &u.Email, u.Bio); err != nil {
+	if err := row.Scan(&u.ID, &u.Nickname, &u.PasswordHash, &u.Firstname, &u.Lastname, &u.Email, &u.Bio); err != nil {
 		return nil, fmt.Errorf("failed to scan user field values: %w", err)
 	}
 
@@ -63,14 +75,14 @@ func (p *PostgresRepository) GetAllUsersViews(ctx context.Context) ([]*model.Use
 
 	var us []j_model.Users
 
-	rows, err := p.pool.Query(ctx, q, args)
+	rows, err := p.pool.Query(ctx, q, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query users views: %w", err)
 	}
 
 	for rows.Next() {
 		var u j_model.Users
-		if err := rows.Scan(&u.ID, &u.Nickname, u.Firstname, u.Lastname); err != nil {
+		if err := rows.Scan(&u.ID, &u.Nickname, &u.Firstname, &u.Lastname); err != nil {
 			return nil, fmt.Errorf("failed to scan row to jet user model: %w", err)
 		}
 		us = append(us, u)
@@ -111,7 +123,7 @@ func (p *PostgresRepository) CreateUser(ctx context.Context, user *model.User) e
 	).MODEL(u)
 
 	q, args := stmt.Sql()
-	if _, err := p.pool.Exec(ctx, q, args); err != nil {
+	if _, err := p.pool.Exec(ctx, q, args...); err != nil {
 		return fmt.Errorf("failed to execute insert query for user: %w", err)
 	}
 
@@ -137,7 +149,7 @@ func (p *PostgresRepository) UpdateUser(ctx context.Context, ID uuid.UUID, opts 
 
 	q, args := stmt.Sql()
 
-	if _, err := p.pool.Exec(ctx, q, args); err != nil {
+	if _, err := p.pool.Exec(ctx, q, args...); err != nil {
 		return fmt.Errorf("failed to execute update query: %w", err)
 	}
 
@@ -148,7 +160,7 @@ func (p *PostgresRepository) DeleteUserByID(ctx context.Context, ID uuid.UUID) e
 	stmt := t.Users.DELETE().WHERE(t.Users.ID.EQ(j.UUID(ID)))
 	q, args := stmt.Sql()
 
-	if _, err := p.pool.Exec(ctx, q, args); err != nil {
+	if _, err := p.pool.Exec(ctx, q, args...); err != nil {
 		return fmt.Errorf("failed to execute delete by id query for user: %w", err)
 	}
 

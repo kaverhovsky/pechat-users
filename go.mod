@@ -14,8 +14,11 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/kaverhovsky/pechat-lib v0.0.0-20250820154839-aa4597ddbbbe // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/pressly/goose v2.7.0+incompatible // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
+	github.com/samber/lo v1.51.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
