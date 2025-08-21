@@ -19,15 +19,15 @@ func NewPostgresRepository(ctx context.Context, dsn string) (*PostgresRepository
 	// TODO указать другие параметры (размер пула и пр.)
 	c, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return fmt.Errorf("failed to parse pgxpool config from dsn: %w", err)
+		return nil, fmt.Errorf("failed to parse pgxpool config from dsn: %w", err)
 	}
 
 	pool, err := pgxpool.NewWithConfig(ctx, c)
 	if err != nil {
-		return fmt.Errorf("failed to create pgx pool: %w", err)
+		return nil, fmt.Errorf("failed to create pgx pool: %w", err)
 	}
 
-	return &PostgresRepository{pool: pool}
+	return &PostgresRepository{pool: pool}, nil
 }
 
 func NewPostgresRepositoryWithPool(pool *pgxpool.Pool) *PostgresRepository {

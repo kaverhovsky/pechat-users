@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// TODO use flag
-	c, err := config.LoadConfig("./configs/local")
+	c, err := config.LoadConfig("./configs/local.yaml")
 	if err != nil {
 		panic(err)
 	}
@@ -27,4 +27,6 @@ func main() {
 	}
 
 	_ = usecase.NewUseCase(pgrepo)
+
+	logger.Logger().Info("started users app")
 }
