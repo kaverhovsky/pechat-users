@@ -12,10 +12,20 @@ import (
 )
 
 type PostgresRepository struct {
-	pool *pgxpool.Pool
+	pool  *pgxpool.Pool
+	table *t.UsersTable
 }
 
-func NewPostgresRepository(ctx context.Context, dsn string) (*PostgresRepository, error) {
+type RepoOption func(repo *PostgresRepository) error
+
+func WithSchema(schemaName string) RepoOption {
+	return func(repo *PostgresRepository) error {
+		repo.table = t.Users.FromSchema(schemaName)
+		return nil
+	}
+}
+
+func NewPostgresRepository(ctx context.Context, dsn string, opts ...RepoOption) (*PostgresRepository, error) {
 	// TODO указать другие параметры (размер пула и пр.)
 	c, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
@@ -27,7 +37,16 @@ func NewPostgresRepository(ctx context.Context, dsn string) (*PostgresRepository
 		return nil, fmt.Errorf("failed to create pgx pool: %w", err)
 	}
 
-	return &PostgresRepository{pool: pool}, nil
+	repo := &PostgresRepository{pool: pool}
+	repo.table = t.Users
+
+	for _, opt := range opts {
+		if err := opt(repo); err != nil {
+			return nil, fmt.Errorf("failed to apply repo option: %w", err)
+		}
+	}
+
+	return repo, nil
 }
 
 func NewPostgresRepositoryWithPool(pool *pgxpool.Pool) *PostgresRepository {
@@ -35,20 +54,9 @@ func NewPostgresRepositoryWithPool(pool *pgxpool.Pool) *PostgresRepository {
 }
 
 func (p *PostgresRepository) GetUserByID(ctx context.Context, ID uuid.UUID) (*model.User, error) {
-	stmt := j.SELECT(t.Users.AllColumns).FROM(t.Users).WHERE(t.Users.ID.EQ(j.UUID(ID)))
-	//stmt := j.SELECT(t.Users.AllColumns).FROM(t.Users).WHERE(t.Users.ID.EQ(j.String(ID.String())))
-	//stmt := j.SELECT(
-	//	t.Users.ID,
-	//	t.Users.Nickname,
-	//	t.Users.PasswordHash,
-	//	t.Users.Email,
-	//	t.Users.Firstname,
-	//	t.Users.Lastname,
-	//	t.Users.Bio,
-	//).FROM(t.Users).WHERE(t.Users.ID.EQ(j.UUID(ID)))
+	stmt := j.SELECT(p.table.AllColumns).FROM(p.table).WHERE(p.table.ID.EQ(j.UUID(ID)))
+
 	q, args := stmt.Sql()
-	fmt.Println(q)
-	fmt.Println(args)
 
 	row := p.pool.QueryRow(ctx, q, args...)
 
@@ -70,7 +78,7 @@ func (p *PostgresRepository) GetUserByID(ctx context.Context, ID uuid.UUID) (*mo
 
 func (p *PostgresRepository) GetAllUsersViews(ctx context.Context) ([]*model.UserView, error) {
 	// TODO limit
-	stmt := j.SELECT(t.Users.ID, t.Users.Nickname, t.Users.Firstname, t.Users.Lastname).FROM(t.Users)
+	stmt := j.SELECT(p.table.ID, p.table.Nickname, p.table.Firstname, p.table.Lastname).FROM(p.table)
 	q, args := stmt.Sql()
 
 	var us []j_model.Users
@@ -112,14 +120,14 @@ func (p *PostgresRepository) CreateUser(ctx context.Context, user *model.User) e
 		Bio:          user.Bio,
 	}
 
-	stmt := t.Users.INSERT(
-		t.Users.ID,
-		t.Users.Nickname,
-		t.Users.PasswordHash,
-		t.Users.Firstname,
-		t.Users.Lastname,
-		t.Users.Email,
-		t.Users.Bio,
+	stmt := p.table.INSERT(
+		p.table.ID,
+		p.table.Nickname,
+		p.table.PasswordHash,
+		p.table.Firstname,
+		p.table.Lastname,
+		p.table.Email,
+		p.table.Bio,
 	).MODEL(u)
 
 	q, args := stmt.Sql()
@@ -132,20 +140,20 @@ func (p *PostgresRepository) CreateUser(ctx context.Context, user *model.User) e
 
 // UpdateUser TODO returning?
 func (p *PostgresRepository) UpdateUser(ctx context.Context, ID uuid.UUID, opts *model.UserUpdateOpts) error {
-	stmt := t.Users.UPDATE()
+	stmt := p.table.UPDATE()
 	if opts.Nickname != nil {
-		stmt = stmt.SET(t.Users.Nickname.SET(j.String(*opts.Nickname)))
+		stmt = stmt.SET(p.table.Nickname.SET(j.String(*opts.Nickname)))
 	}
 	if opts.Firstname != nil {
-		stmt = stmt.SET(t.Users.Firstname.SET(j.String(*opts.Firstname)))
+		stmt = stmt.SET(p.table.Firstname.SET(j.String(*opts.Firstname)))
 	}
 	if opts.Lastname != nil {
-		stmt = stmt.SET(t.Users.Lastname.SET(j.String(*opts.Lastname)))
+		stmt = stmt.SET(p.table.Lastname.SET(j.String(*opts.Lastname)))
 	}
 	if opts.Bio != nil {
-		stmt = stmt.SET(t.Users.Bio.SET(j.String(*opts.Bio)))
+		stmt = stmt.SET(p.table.Bio.SET(j.String(*opts.Bio)))
 	}
-	stmt = stmt.WHERE(t.Users.ID.EQ(j.UUID(ID)))
+	stmt = stmt.WHERE(p.table.ID.EQ(j.UUID(ID)))
 
 	q, args := stmt.Sql()
 
@@ -157,7 +165,7 @@ func (p *PostgresRepository) UpdateUser(ctx context.Context, ID uuid.UUID, opts 
 }
 
 func (p *PostgresRepository) DeleteUserByID(ctx context.Context, ID uuid.UUID) error {
-	stmt := t.Users.DELETE().WHERE(t.Users.ID.EQ(j.UUID(ID)))
+	stmt := p.table.DELETE().WHERE(p.table.ID.EQ(j.UUID(ID)))
 	q, args := stmt.Sql()
 
 	if _, err := p.pool.Exec(ctx, q, args...); err != nil {
