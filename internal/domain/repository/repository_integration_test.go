@@ -330,3 +330,55 @@ func TestUpdateUser_Success(t *testing.T) {
 
 	require.Equal(t, u, got, "expected user and updated user are not the same")
 }
+
+func TestDeleteUserByID_Success(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	// setup repo
+	repo, schemaName, err := setup(ctx)
+	require.NoError(t, err, "setting up postgres repository")
+	// cleanup on exit
+	defer func() {
+		err := cleanup(ctx, repo.pool, schemaName)
+		require.NoError(t, err, "cleaning up postgres repository")
+	}()
+
+	// test code
+	id := uuid.New()
+	u := &model.User{
+		ID:           id,
+		Nickname:     "jojofan",
+		PasswordHash: "abcd1234",
+		Firstname:    lo.ToPtr("Giorno"),
+		Lastname:     lo.ToPtr("Giovanni"),
+		Email:        "giogio@example.com",
+		Bio:          lo.ToPtr("hello i'm a giogio"),
+	}
+	q, args := repo.table.INSERT(repo.table.AllColumns).VALUES(u.ID, u.Nickname, u.PasswordHash, u.Firstname, u.Lastname, u.Email, u.Bio).Sql()
+
+	_, err = repo.pool.Exec(ctx, q, args...)
+	require.NoError(t, err, "should be no error while inserting test user to repo")
+
+	err = repo.DeleteUserByID(ctx, id)
+	require.NoError(t, err, "got error while deleting user by id")
+
+	_, err = repo.GetUserByID(ctx, id)
+	require.ErrorIs(t, err, pgx.ErrNoRows, "must be no rows error after user deletion")
+}
+
+func TestDeleteUserByID_NothingToDelete(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	// setup repo
+	repo, schemaName, err := setup(ctx)
+	require.NoError(t, err, "setting up postgres repository")
+	// cleanup on exit
+	defer func() {
+		err := cleanup(ctx, repo.pool, schemaName)
+		require.NoError(t, err, "cleaning up postgres repository")
+	}()
+
+	// test code
+	err = repo.DeleteUserByID(ctx, uuid.New())
+	require.NoError(t, err, "must not get an error")
+}
