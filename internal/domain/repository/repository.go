@@ -140,21 +140,31 @@ func (p *PostgresRepository) CreateUser(ctx context.Context, user *model.User) e
 
 // UpdateUser TODO returning?
 func (p *PostgresRepository) UpdateUser(ctx context.Context, ID uuid.UUID, opts *model.UserUpdateOpts) error {
-	stmt := p.table.UPDATE()
+	var columnsToUpdate j.ColumnList
+	var u j_model.Users
+
 	if opts.Nickname != nil {
-		stmt = stmt.SET(p.table.Nickname.SET(j.String(*opts.Nickname)))
+		columnsToUpdate = append(columnsToUpdate, p.table.Nickname)
+		u.Nickname = *opts.Nickname
 	}
 	if opts.Firstname != nil {
-		stmt = stmt.SET(p.table.Firstname.SET(j.String(*opts.Firstname)))
+		columnsToUpdate = append(columnsToUpdate, p.table.Firstname)
+		u.Firstname = opts.Firstname
 	}
 	if opts.Lastname != nil {
-		stmt = stmt.SET(p.table.Lastname.SET(j.String(*opts.Lastname)))
+		columnsToUpdate = append(columnsToUpdate, p.table.Lastname)
+		u.Lastname = opts.Lastname
 	}
 	if opts.Bio != nil {
-		stmt = stmt.SET(p.table.Bio.SET(j.String(*opts.Bio)))
+		columnsToUpdate = append(columnsToUpdate, p.table.Bio)
+		u.Bio = opts.Bio
 	}
-	stmt = stmt.WHERE(p.table.ID.EQ(j.UUID(ID)))
 
+	if len(columnsToUpdate) == 0 {
+		return nil
+	}
+
+	stmt := p.table.UPDATE(columnsToUpdate).MODEL(u).WHERE(p.table.ID.EQ(j.UUID(ID)))
 	q, args := stmt.Sql()
 
 	if _, err := p.pool.Exec(ctx, q, args...); err != nil {

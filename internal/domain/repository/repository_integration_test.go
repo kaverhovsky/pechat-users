@@ -211,28 +211,122 @@ func TestGetAllUsersViews_NoRows(t *testing.T) {
 	require.EqualValues(t, got, expected, "expected user and acquired users views are not the same")
 }
 
-//func TestCreateUser_Success(t *testing.T) {
-//	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-//	defer cancel()
-//	// setup repo
-//	repo, schemaName, err := setup(ctx)
-//	require.NoError(t, err, "setting up postgres repository")
-//	// cleanup on exit
-//	defer func() {
-//		err := cleanup(ctx, repo.pool, schemaName)
-//		require.NoError(t, err, "cleaning up postgres repository")
-//	}()
-//
-//	// test code
-//	u := &model.User{
-//		ID:           uuid.New(),
-//		Nickname:     "jojofan",
-//		PasswordHash: "abcd1234",
-//		Firstname:    lo.ToPtr("Giorno"),
-//		Lastname:     lo.ToPtr("Giovanni"),
-//		Email:        "giogio@example.com",
-//		Bio:          lo.ToPtr("hello i'm a giogio"),
-//	}
-//	repo.CreateUser(ctx, u)
-//
-//}
+func TestCreateUser_Success(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	// setup repo
+	repo, schemaName, err := setup(ctx)
+	require.NoError(t, err, "setting up postgres repository")
+	// cleanup on exit
+	defer func() {
+		err := cleanup(ctx, repo.pool, schemaName)
+		require.NoError(t, err, "cleaning up postgres repository")
+	}()
+
+	// test code
+	id := uuid.New()
+	u := &model.User{
+		ID:           id,
+		Nickname:     "jojofan",
+		PasswordHash: "abcd1234",
+		Firstname:    lo.ToPtr("Giorno"),
+		Lastname:     lo.ToPtr("Giovanni"),
+		Email:        "giogio@example.com",
+		Bio:          lo.ToPtr("hello i'm a giogio"),
+	}
+	err = repo.CreateUser(ctx, u)
+	require.NoError(t, err, "should be no error while creating user")
+
+	expected, err := repo.GetUserByID(ctx, id)
+	require.NoError(t, err, "got error while getting user by id")
+
+	require.Equal(t, u, expected, "expected user and acquired user are not the same")
+}
+
+// TODO should be an error?
+func TestCreateUser_MissingFields(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	// setup repo
+	repo, schemaName, err := setup(ctx)
+	require.NoError(t, err, "setting up postgres repository")
+	// cleanup on exit
+	defer func() {
+		err := cleanup(ctx, repo.pool, schemaName)
+		require.NoError(t, err, "cleaning up postgres repository")
+	}()
+
+	// test code
+	id := uuid.New()
+	u := &model.User{
+		ID:           id,
+		Nickname:     "",
+		PasswordHash: "",
+		Firstname:    lo.ToPtr(""),
+		Lastname:     lo.ToPtr(""),
+		Email:        "",
+		Bio:          lo.ToPtr(""),
+	}
+	err = repo.CreateUser(ctx, u)
+	require.NoError(t, err, "should be no error while creating user")
+
+	expected, err := repo.GetUserByID(ctx, id)
+	require.NoError(t, err, "got error while getting user by id")
+
+	require.Equal(t, u, expected, "expected user and acquired user are not the same")
+}
+
+func TestUpdateUser_Success(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	// setup repo
+	repo, schemaName, err := setup(ctx)
+	require.NoError(t, err, "setting up postgres repository")
+	// cleanup on exit
+	defer func() {
+		err := cleanup(ctx, repo.pool, schemaName)
+		require.NoError(t, err, "cleaning up postgres repository")
+	}()
+
+	// test code
+	id := uuid.New()
+	u := &model.User{
+		ID:           id,
+		Nickname:     "jojofan",
+		PasswordHash: "abcd1234",
+		Firstname:    lo.ToPtr("Giorno"),
+		Lastname:     lo.ToPtr("Giovanni"),
+		Email:        "giogio@example.com",
+		Bio:          lo.ToPtr("hello i'm a giogio"),
+	}
+	q, args := repo.table.INSERT(repo.table.AllColumns).VALUES(u.ID, u.Nickname, u.PasswordHash, u.Firstname, u.Lastname, u.Email, u.Bio).Sql()
+
+	_, err = repo.pool.Exec(ctx, q, args...)
+	require.NoError(t, err, "should be no error while inserting test user to repo")
+
+	newNickname := lo.ToPtr("narutofan")
+	newFirstname := lo.ToPtr("Sasuke")
+	newLastname := lo.ToPtr("Uchiha")
+	newBio := lo.ToPtr("hello i'm a naruto fan")
+
+	opts := &model.UserUpdateOpts{
+		Nickname:  newNickname,
+		Firstname: newFirstname,
+		Lastname:  newLastname,
+		Bio:       newBio,
+	}
+
+	u.Nickname = *newNickname
+	u.Firstname = newFirstname
+	u.Lastname = newLastname
+	u.Bio = newBio
+
+	// TODO returning
+	err = repo.UpdateUser(ctx, id, opts)
+	require.NoError(t, err, "should be no error while updating user")
+
+	got, err := repo.GetUserByID(ctx, id)
+	require.NoError(t, err, "got error while getting user by id")
+
+	require.Equal(t, u, got, "expected user and updated user are not the same")
+}
