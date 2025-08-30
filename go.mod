@@ -4,6 +4,7 @@ go 1.23.7
 
 require (
 	github.com/go-jet/jet/v2 v2.13.0
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/kaverhovsky/pechat-lib v0.0.0-20250820154839-aa4597ddbbbe
@@ -13,9 +14,11 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/mock v0.6.0
 	go.uber.org/zap v1.27.0
+	golang.org/x/crypto v0.37.0
 )
 
 require (
+	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
@@ -32,7 +35,6 @@ require (
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
