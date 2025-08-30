@@ -56,20 +56,22 @@ func (s *UseCase) GetAllUsersViews(ctx context.Context) ([]*model.UserView, erro
 func (s *UseCase) CreateUser(ctx context.Context, opts *model.UserCreateOpts) error {
 	ID := uuid.New()
 
-	// TODO hash password
-	// passwordHash := hash(opts.Password)
+	hashedPassword, err := hashPassword(opts.Password)
+	if err != nil {
+		return fmt.Errorf("failed to generate password hash: %w", err)
+	}
 
 	newUser := &model.User{
 		ID:           ID,
 		Nickname:     opts.Nickname,
-		PasswordHash: opts.Password, // TODO put hash
+		PasswordHash: hashedPassword,
 		Firstname:    &opts.Firstname,
 		Lastname:     &opts.Lastname,
 		Email:        opts.Email,
 		Bio:          &opts.Bio,
 	}
 
-	err := s.repo.CreateUser(ctx, newUser)
+	err = s.repo.CreateUser(ctx, newUser)
 	if err != nil {
 		logger.Error(ctx, "failed to create user", zap.NamedError("err", err))
 		return fmt.Errorf("failed to create user: %w", err)

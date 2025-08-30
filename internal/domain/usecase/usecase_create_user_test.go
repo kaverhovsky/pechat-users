@@ -23,9 +23,10 @@ func (m *createUserMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
-	// check all fields except ID, because it is generated in CreateUser
+	// check all fields
+	// except ID - it is generated in CreateUser
+	// except PasswordHash - hash is different after every generation
 	return m.expected.Nickname == got.Nickname &&
-		m.expected.PasswordHash == got.PasswordHash &&
 		m.expected.Email == got.Email &&
 		*m.expected.Firstname == *got.Firstname &&
 		*m.expected.Lastname == *got.Lastname &&
@@ -33,7 +34,7 @@ func (m *createUserMatcher) Matches(x interface{}) bool {
 }
 
 func (m *createUserMatcher) String() string {
-	str := fmt.Sprintf(`expected user struct (ignored ID and PasswordHash):
+	str := fmt.Sprintf(`expected user struct (ignored ID):
 	Nickname: %s,
 	Email: %s,
 	Firstname: %s,
