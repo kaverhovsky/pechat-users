@@ -4,9 +4,13 @@ import (
 	"context"
 	"github.com/kaverhovsky/pechat-lib/logger"
 	"go.uber.org/zap"
+	"os"
+	"os/signal"
+	"pechat-users/internal/app"
 	"pechat-users/internal/domain/repository"
 	"pechat-users/internal/domain/usecase"
 	"pechat-users/internal/pkg/config"
+	"syscall"
 	"time"
 )
 
@@ -26,7 +30,24 @@ func main() {
 		logger.Logger().Error("failed to create postgres repository", zap.NamedError("err", pgErr))
 	}
 
-	_ = usecase.NewUseCase(pgrepo)
+	uc := usecase.NewUseCase(pgrepo)
 
-	logger.Logger().Info("started users app")
+	httpApp := app.NewApp(c, uc)
+
+	go httpApp.Run()
+
+	defer func() {
+		if err := httpApp.Shutdown(ctx); err != nil {
+			logger.Logger().Error("failed to shutdown http app", zap.Error(err))
+		}
+	}()
+
+	logger.Logger().Info("started users service")
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sigs
+
+	logger.Logger().Info("shutting down service...")
 }

@@ -14,6 +14,10 @@ type Config struct {
 		Level string `mapstructure:"level"`
 		Mode  string `mapstructure:"mode"`
 	} `mapstructure:"logger"`
+
+	HTTP struct {
+		Listen string `mapstructure:"listen"`
+	} `mapstructure:"http"`
 }
 
 // LoadConfig TODO добавить opts для тестов
