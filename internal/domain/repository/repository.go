@@ -5,10 +5,15 @@ import (
 	"fmt"
 	j "github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"pechat-users/internal/domain/model"
 	j_model "pechat-users/internal/pkg/jet/pechat_users/public/model"
 	t "pechat-users/internal/pkg/jet/pechat_users/public/table"
+)
+
+var (
+	ErrNotFound = pgx.ErrNoRows
 )
 
 type PostgresRepository struct {
@@ -100,7 +105,7 @@ func (p *PostgresRepository) GetAllUsersViews(ctx context.Context) ([]*model.Use
 	for _, u := range us {
 		views = append(views, &model.UserView{
 			ID:        u.ID,
-			NickName:  u.Nickname,
+			Nickname:  u.Nickname,
 			Firstname: u.Firstname,
 			Lastname:  u.Lastname,
 		})

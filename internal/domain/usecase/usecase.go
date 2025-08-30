@@ -75,7 +75,7 @@ func (s *UseCase) CreateUser(ctx context.Context, opts *model.UserCreateOpts) er
 		return fmt.Errorf("failed to create user: %w", err)
 	}
 
-	logger.Debug(ctx, "updated user by id",
+	logger.Debug(ctx, "created user with id",
 		zap.String("userId", ID.String()))
 
 	return nil

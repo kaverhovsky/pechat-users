@@ -163,13 +163,13 @@ func TestGetAllUsersViews_Success(t *testing.T) {
 	expected := []*model.UserView{
 		{
 			ID:        u1.ID,
-			NickName:  u1.Nickname,
+			Nickname:  u1.Nickname,
 			Firstname: u1.Firstname,
 			Lastname:  u1.Lastname,
 		},
 		{
 			ID:        u2.ID,
-			NickName:  u2.Nickname,
+			Nickname:  u2.Nickname,
 			Firstname: u2.Firstname,
 			Lastname:  u2.Lastname,
 		},

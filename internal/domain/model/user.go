@@ -26,7 +26,7 @@ type UserCreateOpts struct {
 
 type UserView struct {
 	ID        uuid.UUID
-	NickName  string
+	Nickname  string
 	Firstname *string
 	Lastname  *string
 }
