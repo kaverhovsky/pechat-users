@@ -4,6 +4,10 @@ MIGRATIONDIR=${CURDIR}/migrations
 BINNAME=users
 APP_ENTRYPOINT=./cmd/users/users.go
 JET_GENERATE_PATH=./internal/pkg/jet
+MOCKGEN_INTERFACES=Repository
+MOCKGEN_SOURCE_PATH=./internal/domain/usecase
+MOCKGEN_DESTINATION_PATH=./internal/domain/usecase/mocks/mocks.go
+MOCKGEN_PACKAGE=mocks
 
 clean:
 	rm -rf ${BUILDDIR}
@@ -30,6 +34,8 @@ generate-jet:
 	-path=${JET_GENERATE_PATH} \
 	-ignore-tables goose_db_version, goose_db_version_id_seq
 
+generate-mocks:
+	$(BINDIR)/mockgen -destination $(MOCKGEN_DESTINATION_PATH) -package $(MOCKGEN_PACKAGE) $(MOCKGEN_SOURCE_PATH) $(MOCKGEN_INTERFACES)
 
 # postgres migrations
 up-goose-migrations:
@@ -48,3 +54,8 @@ install-jet-generator:
 install-goose:
 	$(info Installing goose binary into [$(BINDIR)]...)
 	GOBIN=$(BINDIR) go install github.com/pressly/goose/v3/cmd/goose@v3.24.1
+
+install-mockgen:
+	$(info Installing goose binary into [$(BINDIR)]...)
+	GOBIN=$(BINDIR) go install go.uber.org/mock/mockgen@v0.6.0
+
