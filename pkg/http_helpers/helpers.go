@@ -6,6 +6,9 @@ import (
 )
 
 // TODO move to pechat lib
+type errResponse struct {
+	Error string `json:"error"`
+}
 
 func WriteSuccess(w http.ResponseWriter, statusCode int, payload interface{}) {
 	w.WriteHeader(statusCode)
@@ -20,7 +23,7 @@ func WriteSuccess(w http.ResponseWriter, statusCode int, payload interface{}) {
 func WriteError(w http.ResponseWriter, statusCode int, err error) {
 	w.WriteHeader(statusCode)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if jsonErr := json.NewEncoder(w).Encode(err); jsonErr != nil {
+	if jsonErr := json.NewEncoder(w).Encode(errResponse{Error: err.Error()}); jsonErr != nil {
 		panic(err)
 	}
 }

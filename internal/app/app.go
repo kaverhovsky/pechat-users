@@ -7,6 +7,8 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"pechat-users/internal/app/http/create_user_handler"
+	"pechat-users/internal/app/http/get_all_users_views_handler"
+	"pechat-users/internal/app/http/get_user_by_id_handler"
 	"pechat-users/internal/app/http/status_handler"
 	"pechat-users/internal/domain/usecase"
 	"pechat-users/internal/pkg/config"
@@ -45,6 +47,8 @@ func applyHandlers(uc *usecase.UseCase) http.Handler {
 
 	mux.Handle("GET /status", status_handler.New())
 	mux.Handle("POST /api/v1/users", create_user_handler.New(uc))
+	mux.Handle("GET /api/v1/users/{userID}", get_user_by_id_handler.New(uc))
+	mux.Handle("GET /api/v1/users", get_all_users_views_handler.New(uc))
 
 	return mux
 }
